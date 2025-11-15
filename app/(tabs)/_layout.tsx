@@ -17,7 +17,7 @@ export default function TabLayout() {
       initialRouteName="fridge"
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: true,
+        headerShown: false,
         tabBarButton: HapticTab,
       }}>
         
