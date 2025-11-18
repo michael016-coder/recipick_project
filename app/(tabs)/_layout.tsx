@@ -6,6 +6,7 @@ import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 //개발 중 추가
+import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'react-native';
 
 
@@ -19,12 +20,12 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
         tabBarButton: HapticTab,
+        tabBarShowLabel: false,
       }}>
         
       <Tabs.Screen
         name="fridge"
         options={{
-          title: '내 냉장고',
           tabBarIcon: ({ focused }) => (
             <Image
               source={
@@ -40,7 +41,6 @@ export default function TabLayout() {
       <Tabs.Screen
         name="search"
         options={{
-          title: '검색',
           tabBarIcon: ({ focused }) => (
             <Image
               source={
@@ -56,7 +56,6 @@ export default function TabLayout() {
       <Tabs.Screen
         name="cart"
         options={{
-          title: '장바구니',
           tabBarIcon: ({ focused }) => (
             <Image
               source={
@@ -72,7 +71,6 @@ export default function TabLayout() {
       <Tabs.Screen
         name="bookMark"
         options={{
-          title: '북마크',
           tabBarIcon: ({ focused }) => (
             <Image
               source={
@@ -81,6 +79,18 @@ export default function TabLayout() {
                   : require('../../assets/icons/bookmark.png')
               }
               style={{ width: 26, height: 26 }}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="myPage"
+        options={{
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons
+              name={focused ? "person-circle" : "person-circle-outline"}
+              size={26}
+              color={color}
             />
           ),
         }}
