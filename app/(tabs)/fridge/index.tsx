@@ -13,15 +13,20 @@ import {
 import { SwipeListView } from 'react-native-swipe-list-view';
 
 
-
-
-
+import EditFridgeIng from '@/components/modals/editFridgeIng';
 
 
 export default function FridgeScreen() {
     
     
     const router = useRouter();
+    
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+
+    const openEditModal = () => {
+        setIsEditModalVisible(true);
+    };
+    
     
     const [ingredients, setIngredients] = useState([
         {
@@ -104,10 +109,7 @@ export default function FridgeScreen() {
     ]);
     
 
-    function openEditPopUp() {
-    
-    
-    }
+ 
     
     
     function closeItem(rowMap, rowKey) {
@@ -154,7 +156,10 @@ export default function FridgeScreen() {
                             data={ingredients}
                             renderItem={(data, rowMap) => (
                                 <View style={styles.itemContainer}>
-                                <TouchableOpacity  >
+                                <TouchableOpacity  
+                                
+                                        onPress={openEditModal}
+                                >
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                         <Text style={styles.itemName}>{data.item.name}</Text>
                                         <Text style={styles.itemInfo}>
@@ -182,7 +187,10 @@ export default function FridgeScreen() {
 
                         />
               </View>
+
+
             )}
+            <EditFridgeIng isEditModalVisible={isEditModalVisible} setIsEditModalVisible={setIsEditModalVisible}/>
             <TouchableOpacity
                 style={styles.fab}
                 onPress={() => router.push('/(tabs)/fridge/addIng')}
