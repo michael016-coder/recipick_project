@@ -4,7 +4,7 @@ export default function FridgeLayout() {
     return (
         <Stack
             screenOptions={{
-                headerShown: true,
+                headerShown: false,
                 animation: 'slide_from_right', // 오른쪽에서 슬라이드
             }}
         >
