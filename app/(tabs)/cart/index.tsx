@@ -1,9 +1,42 @@
-import { Text, View } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function FridgeScreen() {
+export default function CartScreen() {
     return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text>내 냉장고 화면입니다</Text>
-        </View>
+        <SafeAreaView style={styles.safeArea}>
+            <View style={styles.header}>
+                <Text style={styles.headerText}>Cart</Text>
+            </View>
+            <View style={styles.body}>
+                <Text style={styles.placeholder}>장보기 리스트가 여기에 표시됩니다.</Text>
+            </View>
+        </SafeAreaView>
     );
 }
+
+const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: '#ffffff',
+    },
+    header: {
+        paddingTop: 12,
+        paddingBottom: 16,
+        alignItems: 'center',
+    },
+    headerText: {
+        fontSize: 36,
+        fontFamily: 'CedarvilleCursive_400Regular',
+        color: '#111827',
+    },
+    body: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 24,
+    },
+    placeholder: {
+        fontSize: 16,
+        color: '#6b7280',
+    },
+});
