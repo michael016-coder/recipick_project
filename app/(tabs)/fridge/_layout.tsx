@@ -1,6 +1,24 @@
 import { Stack } from 'expo-router';
+import React, { useState } from "react";
+import { Animated, Image, StyleSheet, TextInput, TouchableOpacity } from "react-native";
 
 export default function FridgeLayout() {
+    const [searchMode, setSearchMode] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const fadeAnim = new Animated.Value(1);
+
+    // 🔍 검색모드 전환 시 페이드 효과
+    const toggleSearch = () => {
+        Animated.timing(fadeAnim, {
+            toValue: searchMode ? 0 : 1,
+            duration: 200,
+            useNativeDriver: true,
+        }).start(() => {
+            setSearchMode(!searchMode);
+        });
+    };
+
+
     return (
         <Stack
             screenOptions={{
@@ -8,8 +26,67 @@ export default function FridgeLayout() {
                 animation: 'slide_from_right', // 오른쪽에서 슬라이드
             }}
         >
-            <Stack.Screen name="index" />  {/* 기본 냉장고 메인 화면 */}
+            <Stack.Screen
+                name="index"
+                options={{
+                    headerTitle: () => (
+                        searchMode ? (
+                            <Animated.View style={[styles.searchBox, { opacity: fadeAnim }]}>
+                                <TextInput
+                                    value={searchQuery}
+                                    onChangeText={setSearchQuery}
+                                    placeholder="재료 검색..."
+                                    style={styles.searchInput}
+                                    autoFocus
+                                />
+                            </Animated.View>
+                        ) : (
+                            <Animated.Text style={[styles.title, { opacity: fadeAnim }]}>
+                                냉장고
+                            </Animated.Text>
+                        )
+                    ),
+                    headerRight: () => (
+                        <TouchableOpacity onPress={toggleSearch} style={styles.iconButton}>
+                               <Image
+                                source={require('../../../assets/icons/search.png')}
+                                style={{ width: 26, height: 26 }}
+                                        />
+                        </TouchableOpacity>
+                    ),
+                }}
+            />
             <Stack.Screen name="addIng" />    {/* 재료 추가 화면 */}
         </Stack>
+
+      
     );
 }
+
+
+
+
+const styles = StyleSheet.create({
+    title: {
+        fontSize: 18,
+        fontWeight: "600",
+        textAlign: "center",
+    },
+    iconButton: {
+        marginRight: 10,
+    },
+    searchBox: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#f1f1f1",
+        borderRadius: 8,
+        paddingHorizontal: 8,
+        width: 220,
+        height: 35,
+    },
+    searchInput: {
+        flex: 1,
+        fontSize: 14,
+        paddingVertical: 4,
+    },
+});

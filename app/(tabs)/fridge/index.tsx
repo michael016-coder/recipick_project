@@ -33,9 +33,26 @@ const INGREDIENT_DATABASE = [
     '고구마',
     '마늘',
 ];
+//손가락 제스쳐 핸들러
+//
+import { SwipeListView } from 'react-native-swipe-list-view';
+
+
+import EditFridgeIng from '@/components/modals/editFridgeIng';
+
 
 export default function FridgeScreen() {
+    
+    
+    const router = useRouter();
+    
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
+    const openEditModal = () => {
+        setIsEditModalVisible(true);
+    };
+    
+    
     const [ingredients, setIngredients] = useState([
         {
             id: '1',
@@ -119,17 +136,104 @@ export default function FridgeScreen() {
             <Text style={styles.itemMemo}>{item.memo}</Text>
         </View>
       );
+            quantity: '1L',
+            storageDays: '1일 경과',
+            memo: '개봉 후 냉장보관',
+        },
+        {
+            id: '4',
+            name: '우유1',
+            quantity: '1L',
+            storageDays: '1일 경과',
+            memo: '개봉 후 냉장보관',
+        },
+        {
+            id: '5',
+            name: '우유2',
+            quantity: '1L',
+            storageDays: '1일 경과',
+            memo: '개봉 후 냉장보관',
+        },
+        {
+            id: '6',
+            name: '우유3',
+            quantity: '1L',
+            storageDays: '1일 경과',
+            memo: '개봉 후 냉장보관',
+        },
+        {
+            id: '7',
+            name: '우유4',
+            quantity: '1L',
+            storageDays: '1일 경과',
+            memo: '개봉 후 냉장보관',
+        },
+        {
+            id: '8',
+            name: '우유5',
+            quantity: '1L',
+            storageDays: '1일 경과',
+            memo: '개봉 후 냉장보관',
+        },
+        {
+            id: '9',
+            name: '우유6',
+            quantity: '1L',
+            storageDays: '1일 경과',
+            memo: '개봉 후 냉장보관',
+        },
+        {
+            id: '10',
+            name: '우유7',
+            quantity: '1L',
+            storageDays: '1일 경과',
+            memo: '개봉 후 냉장보관',
+        },
+        {
+            id: '11',
+            name: '우유8',
+            quantity: '1L',
+            storageDays: '1일 경과',
+            memo: '개봉 후 냉장보관',
+        },
+    ]);
+    
 
+ 
+    
+    
+    function closeItem(rowMap, rowKey) {
+        if (rowMap[rowKey]) {
+            console.log(rowKey);
+            rowMap[rowKey].closeRow();
+        }
+    }
+    
+    
+    function deleteIng(ingredients, setIngredients, rowMap, rowItemId) {
+        closeItem(rowMap, rowItemId);
+        const newData = [...ingredients];
+        const prevIndex = ingredients.findIndex(item => item.id === rowItemId);
+        console.log(ingredients[prevIndex]);
+        console.log(rowItemId); 
+        console.log(rowMap[rowItemId]);
+        newData.splice(prevIndex, 1);
+        setIngredients(newData);
+    }
+    
+    
+    1
+    
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.header}>
                 <Text style={styles.headerText}>MyFridge</Text>
             </View>
         <View 
-            style={styles.container}
+        style={styles.container}
         >
             {ingredients.length === 0 ? (
-            <TouchableOpacity
+                <TouchableOpacity
                 style={{ alignItems: 'center' }}
                 onPress={() => setIsSearchVisible(true)}
             >
@@ -138,17 +242,49 @@ export default function FridgeScreen() {
                     냉장고를 채워주세요!
                 </Text>
             </TouchableOpacity>
-            ) : (
-                    <View style={styles.dataContainer}>
-                    <FlatList
-                        data={ingredients}
-                        renderItem={renderItem}
-                        keyExtractor={(item ) => item.id}
-                        contentContainerStyle={{ paddingBottom: 100 }}
-                    />
-                </View>
-              
+            ) : ( 
+
+                <View style={styles.SwipeListContainer}>
+                         <SwipeListView 
+                            keyExtractor={(item) => item.id}
+                            data={ingredients}
+                            renderItem={(data, rowMap) => (
+                                <View style={styles.itemContainer}>
+                                <TouchableOpacity  
+                                
+                                        onPress={openEditModal}
+                                >
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                        <Text style={styles.itemName}>{data.item.name}</Text>
+                                        <Text style={styles.itemInfo}>
+                                            수량: {data.item.quantity} | {data.item.storageDays}
+                                        </Text>
+                                    </View>
+                                    <Text style={styles.itemMemo}>{data.item.memo}</Text>
+                                </TouchableOpacity>                             
+                                </View>
+                            )}
+                            renderHiddenItem={(data, rowMap) => (
+                                <View style = {styles.hiddenItemContainer}>
+                                    <TouchableOpacity style = {styles.deleteButton}
+                                        onPress={() => deleteIng(ingredients, setIngredients, rowMap, data.item.id)}
+                        
+                                    >
+                                        <Text style={styles.deleteText}>삭제</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            )}
+                            disableRightSwipe={true}
+                            rightOpenValue={-75}                  
+                            friction={200}
+                            tension={200}
+
+                        />
+              </View>
+
+
             )}
+            <EditFridgeIng isEditModalVisible={isEditModalVisible} setIsEditModalVisible={setIsEditModalVisible}/>
             <TouchableOpacity
                 style={styles.fab}
                 onPress={() => setIsSearchVisible(true)}
@@ -258,6 +394,15 @@ export default function FridgeScreen() {
 }
 
 
+
+
+
+
+
+
+
+
+
 const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
@@ -291,6 +436,17 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 3,
         elevation: 2,
+    SwipeListContainer : {
+        paddingHorizontal: 20, // 전체 여백
+        marginBottom: 20,
+        width: "100%",
+    },
+    itemContainer: {
+        backgroundColor: '#e9f5ff',
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        borderRadius: 8,
+        marginTop: 10,
     },
     itemName: {
         fontSize: 18,
@@ -457,4 +613,41 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
     },
+
+   hiddenItemContainer: {
+       alignItems: "center",
+       flex: 1,
+       flexDirection: 'row',
+       justifyContent: 'flex-end',
+       marginTop: 10,
+   },
+   deleteButton: {
+       backgroundColor: '#f44336',
+       alignItems: 'center',
+       bottom: 0,
+       justifyContent: 'center',
+       position: 'absolute',
+       top: 0,
+       width: 75,
+       borderRadius: 8,
+
+   },
+    deleteText: {
+        color: "#fff",
+        fontWeight: "bold",
+        fontSize: 16,
+    },
+    popup: {
+        position: "absolute",
+        top: "25%",
+        left: "10%",
+        width: "80%",
+        padding: 20,
+        backgroundColor: "#fff",
+        borderRadius: 10,
+        elevation: 10,
+        shadowColor: "#000",
+        shadowOpacity: 0.2,
+        shadowOffset: { width: 0, height: 3 },
+      },
 });
