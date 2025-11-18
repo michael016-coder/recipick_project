@@ -18,8 +18,6 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
-import { useColorScheme } from "@/hooks/use-color-scheme";
-
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -39,12 +37,11 @@ export default function RootLayout() {
   }
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
-          <Stack>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#fff'}}>
+        <ThemeProvider value={colorScheme === 'white' ? DarkTheme : DefaultTheme}>
+          <Stack>         
             <Stack.Screen
               name="login"
               options={{ headerShown: false }}
@@ -53,20 +50,6 @@ export default function RootLayout() {
               name="signup"
               options={{ headerShown: false }}
             />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="modal"
-              options={{ presentation: "modal", title: "Modal" }}
-            />
-          </Stack>
-          <StatusBar
-            style="auto" // light, dark, auto 모드 지정
-            translucent={false} // Android 전용 투명 설정
-    <GestureHandlerRootView style={{ flex: 1 }}>
-    <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#fff'}}>
-        <ThemeProvider value={colorScheme === 'white' ? DarkTheme : DefaultTheme}>
-          <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
           </Stack>

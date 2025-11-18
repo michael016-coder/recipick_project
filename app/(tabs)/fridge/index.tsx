@@ -9,7 +9,7 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 const INGREDIENT_DATABASE = [
     '사과',
@@ -38,13 +38,12 @@ const INGREDIENT_DATABASE = [
 import { SwipeListView } from 'react-native-swipe-list-view';
 
 
-import EditFridgeIng from '@/components/modals/editFridgeIng';
+//import EditFridgeIng from '@/components/modals/editFridgeIng';
 
 
 export default function FridgeScreen() {
     
     
-    const router = useRouter();
     
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
@@ -52,31 +51,6 @@ export default function FridgeScreen() {
         setIsEditModalVisible(true);
     };
     
-    
-    const [ingredients, setIngredients] = useState([
-        {
-            id: '1',
-            name: '사과',
-            quantity: '2개',
-            storageDays: '3일 경과',
-            memo: '상태 양호함',
-        },
-        {
-            id: '2',
-            name: '계란',
-            quantity: '10개',
-            storageDays: '7일 경과',
-            memo: '유통기한 임박',
-        },
-        {
-            id: '3',
-            name: '딸기',
-            quantity: '1팩',
-            storageDays: '1일 경과',
-            memo: '개봉 후 냉장보관',
-        },
-      ]);
-
     const [isSearchVisible, setIsSearchVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedIngredient, setSelectedIngredient] = useState<string | null>(null);
@@ -136,10 +110,30 @@ export default function FridgeScreen() {
             <Text style={styles.itemMemo}>{item.memo}</Text>
         </View>
       );
-            quantity: '1L',
+    
+    const [ingredients, setIngredients] = useState([
+        {
+            id: '1',
+            name: '사과',
+            quantity: '2개',
+            storageDays: '3일 경과',
+            memo: '상태 양호함',
+        },
+        {
+            id: '2',
+            name: '계란',
+            quantity: '10개',
+            storageDays: '7일 경과',
+            memo: '유통기한 임박',
+        },
+        {
+            id: '3',
+            name: '딸기',
+            quantity: '1팩',
             storageDays: '1일 경과',
             memo: '개봉 후 냉장보관',
         },
+
         {
             id: '4',
             name: '우유1',
@@ -225,10 +219,6 @@ export default function FridgeScreen() {
     1
     
     return (
-        <SafeAreaView style={styles.safeArea}>
-            <View style={styles.header}>
-                <Text style={styles.headerText}>MyFridge</Text>
-            </View>
         <View 
         style={styles.container}
         >
@@ -284,7 +274,7 @@ export default function FridgeScreen() {
 
 
             )}
-            <EditFridgeIng isEditModalVisible={isEditModalVisible} setIsEditModalVisible={setIsEditModalVisible}/>
+            {/* <EditFridgeIng isEditModalVisible={isEditModalVisible} setIsEditModalVisible={setIsEditModalVisible}/> */}
             <TouchableOpacity
                 style={styles.fab}
                 onPress={() => setIsSearchVisible(true)}
@@ -389,7 +379,7 @@ export default function FridgeScreen() {
                 </View>
             </Modal>
         </View>
-        </SafeAreaView>
+     
     );
 }
 
@@ -404,10 +394,6 @@ export default function FridgeScreen() {
 
 
 const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-        backgroundColor: '#ffffff',
-    },
     header: {
         paddingTop: 12,
         paddingBottom: 16,
@@ -427,15 +413,6 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingHorizontal: 20,
     },
-    itemContainer: {
-        backgroundColor: '#e9f5ff',
-        borderRadius: 10,
-        padding: 14,
-        marginBottom: 10,
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-        elevation: 2,
     SwipeListContainer : {
         paddingHorizontal: 20, // 전체 여백
         marginBottom: 20,
@@ -594,6 +571,7 @@ const styles = StyleSheet.create({
         height: 48,
         borderRadius: 12,
         justifyContent: 'center',
+        flexDirection: 'row',
         alignItems: 'center',
     },
     cancelButton: {
