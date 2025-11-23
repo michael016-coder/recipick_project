@@ -1,33 +1,74 @@
-import React from 'react';
+
+import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from 'react';
 import {
     Modal,
     StyleSheet,
     Text,
+    TextInput,
     TouchableOpacity,
     View
 } from 'react-native';
 
 
-const editFridgeIng = ({isEditModalVisible, setIsEditModalVisible}) => {
+const EditFridgeIng = ({visible,
+    id, 
+    name,
+    quantity,
+    memo,
+    closeModal,
+    onSave }) => {
+
+    const [editedQuantity, setEditedQuantity] = useState(Number(quantity));
+    const [editedMemo, setEditedMemo] = useState(memo);
+
+
+    // 팝업 닫기 함수
+    const handlerClose = () => {
+        closeModal(!visible);
+    };
+
+    //수량 버튼 클릭 시 인자로 +버튼과 -버튼 존재
+    const handleQuantityChange = (action) => {
+        setEditedQuantity((prev) => {
+            if (action === "plus") return prev + 1;
+            if (action === "minus") return prev > 0 ? prev - 1 : 0;
+            return prev;
+        });
+    }
+
+    // 텍스트 입력 및 수정 변화 감지 시 임시 저장
+    const handlerMemoChange = (text) => {
+        setEditedMemo(text);
+    }
+
+    //저장 버튼 클릭 시 
+    const handlerSaveAll = () => {
+        const updatedItem = {
+            id,
+            name,
+            quantity: editedQuantity,
+            memo: editedMemo,
+        };
+
+        onSave(updatedItem);    // 부모로 데이터 전달
+        closeModal(false);      // 모달 닫기
+    };
 
     
-    // 팝업 닫기 함수
-    const closeModal = () => {
-        setIsEditModalVisible(false);
-    };
 
     return (
             <Modal
                 animationType="fade" // 'none', 'slide', 'fade' 중 선택
                 transparent={true} // ⬅️ 배경을 투명하게 만들어 뒷 화면이 보이게 함 (필수)
-                visible={isEditModalVisible} // 팝업 표시 여부
-                onRequestClose={closeModal} // Android의 뒤로가기 버튼 처리
+                visible={visible} // 팝업 표시 여부
+                onRequestClose={handlerClose} // Android의 뒤로가기 버튼 처리
             >
                 {/* // 모달 배경 영역 (전체 화면을 덮는 오버레이)
                   // onTouchEnd를 사용하여 팝업 외부를 터치하면 닫히도록 설정
                 */}
                 <TouchableOpacity
-                    style={styles.modalOverlay}
+                    style={styles.container}
                     activeOpacity={1} // 터치 시 불투명도 변화 없음
                     onPress={closeModal} // 오버레이를 터치하면 팝업 닫기
                 >
@@ -36,22 +77,22 @@ const editFridgeIng = ({isEditModalVisible, setIsEditModalVisible}) => {
 
                     {/* 1. 재료명 및 수량 조절 버튼 영역 */}
                     <View style={styles.headerRow}>
-                        <Text style={styles.ingredientName}>{ingredientName}</Text>
+                        <Text style={styles.ingredientName}>{name}</Text>
 
                         <View style={styles.quantityControl}>
                             <TouchableOpacity
                                 style={styles.quantityButton}
-                                onPress={() => handleQuantityChange('decrement')}
+                                onPress={() => handleQuantityChange("minus")}
                                 disabled={quantity <= 1} // 수량이 1일 때 비활성화
                             >
                                 <Ionicons name="remove" size={24} color={quantity > 1 ? "#333" : "#ccc"} />
                             </TouchableOpacity>
 
-                            <Text style={styles.quantityText}>{quantity}</Text>
+                            <Text style={styles.quantityText}>{editedQuantity}</Text>
 
                             <TouchableOpacity
                                 style={styles.quantityButton}
-                                onPress={() => handleQuantityChange('increment')}
+                                onPress={() => handleQuantityChange('plus')}
                             >
                                 <Ionicons name="add" size={24} color="#333" />
                             </TouchableOpacity>
@@ -60,11 +101,11 @@ const editFridgeIng = ({isEditModalVisible, setIsEditModalVisible}) => {
 
                     {/* 2. 텍스트 입력란 (메모/부연 설명) */}
                     <View style={styles.memoInputWrapper}>
-                        <TextInput
+                        <TextInput 
                             style={styles.memoInput}
                             placeholder="상태, 유통기한 등 메모를 입력하세요."
-                            value={memo}
-                            onChangeText={setMemo}
+                            value={editedMemo}
+                            onChangeText={handlerMemoChange}
                             multiline={true}
                             placeholderTextColor="#aaa"
                         />
@@ -75,7 +116,7 @@ const editFridgeIng = ({isEditModalVisible, setIsEditModalVisible}) => {
                         {/* 취소 버튼 */}
                         <TouchableOpacity
                             style={[styles.actionButton, styles.cancelButton]}
-                            onPress={onCancel}
+                            onPress={handlerClose}
                         >
                             <Text style={[styles.actionText, styles.cancelText]}>취소</Text>
                         </TouchableOpacity>
@@ -83,7 +124,7 @@ const editFridgeIng = ({isEditModalVisible, setIsEditModalVisible}) => {
                         {/* 저장 버튼 */}
                         <TouchableOpacity
                             style={[styles.actionButton, styles.saveButton]}
-                            onPress={handleSave}
+                            onPress={handlerSaveAll}
                         >
                             <Text style={[styles.actionText, styles.saveText]}>저장</Text>
                         </TouchableOpacity>
@@ -92,7 +133,7 @@ const editFridgeIng = ({isEditModalVisible, setIsEditModalVisible}) => {
                 </View>
                 </TouchableOpacity>
             </Modal>
-    );
+    )
 };
 
 const styles = StyleSheet.create({
@@ -100,8 +141,13 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f8f9fa',
+        backgroundColor: 'rgba(0,0,0,0.4)',
         padding: 20,
+    },
+    modalOveray: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     contentContainer: {
         // 모달의 실제 내용 컨테이너 (Modal Overlay 위에 배치되는 View)
@@ -193,4 +239,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default editFridgeIng;
+export default EditFridgeIng;

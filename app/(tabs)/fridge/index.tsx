@@ -38,19 +38,16 @@ const INGREDIENT_DATABASE = [
 import { SwipeListView } from 'react-native-swipe-list-view';
 
 
-//import EditFridgeIng from '@/components/modals/editFridgeIng';
 
+
+import EditFridgeIng from '@/components/modals/editFridgeIng';
 
 export default function FridgeScreen() {
     
     
-    
-    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  
 
-    const openEditModal = () => {
-        setIsEditModalVisible(true);
-    };
-    
+    // 검색 화면, 재료 추가화면 관련 state, event func
     const [isSearchVisible, setIsSearchVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedIngredient, setSelectedIngredient] = useState<string | null>(null);
@@ -99,37 +96,26 @@ export default function FridgeScreen() {
         setSearchQuery('');
     };
 
-    const renderItem = ({ item }) => (
-        <View style={styles.itemContainer}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text style={styles.itemName}>{item.name}</Text>
-                <Text style={styles.itemInfo}>
-                    수량: {item.quantity} | {item.storageDays}
-                </Text>
-            </View>
-            <Text style={styles.itemMemo}>{item.memo}</Text>
-        </View>
-      );
     
     const [ingredients, setIngredients] = useState([
         {
             id: '1',
             name: '사과',
-            quantity: '2개',
+            quantity: 3,
             storageDays: '3일 경과',
             memo: '상태 양호함',
         },
         {
             id: '2',
             name: '계란',
-            quantity: '10개',
+            quantity: 2,
             storageDays: '7일 경과',
             memo: '유통기한 임박',
         },
         {
             id: '3',
             name: '딸기',
-            quantity: '1팩',
+            quantity: 4,
             storageDays: '1일 경과',
             memo: '개봉 후 냉장보관',
         },
@@ -137,65 +123,105 @@ export default function FridgeScreen() {
         {
             id: '4',
             name: '우유1',
-            quantity: '1L',
+            quantity: 5,
             storageDays: '1일 경과',
             memo: '개봉 후 냉장보관',
         },
         {
             id: '5',
             name: '우유2',
-            quantity: '1L',
+            quantity: 1,
             storageDays: '1일 경과',
             memo: '개봉 후 냉장보관',
         },
         {
             id: '6',
             name: '우유3',
-            quantity: '1L',
+            quantity: 1,
             storageDays: '1일 경과',
             memo: '개봉 후 냉장보관',
         },
         {
             id: '7',
             name: '우유4',
-            quantity: '1L',
+            quantity: 1,
             storageDays: '1일 경과',
             memo: '개봉 후 냉장보관',
         },
         {
             id: '8',
             name: '우유5',
-            quantity: '1L',
+            quantity: 1,
             storageDays: '1일 경과',
             memo: '개봉 후 냉장보관',
         },
         {
             id: '9',
             name: '우유6',
-            quantity: '1L',
+            quantity: 1,
             storageDays: '1일 경과',
             memo: '개봉 후 냉장보관',
         },
         {
             id: '10',
             name: '우유7',
-            quantity: '1L',
+            quantity: 1,
             storageDays: '1일 경과',
             memo: '개봉 후 냉장보관',
         },
         {
             id: '11',
             name: '우유8',
-            quantity: '1L',
+            quantity: 1,
             storageDays: '1일 경과',
             memo: '개봉 후 냉장보관',
         },
     ]);
+
+
+    //편집모달 state
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+    //편집 모달에 전달할 임시 데이터 관리 state
+    const [selectedItem, setSelectedItem] = useState<any>(null);
+    
+    // 편집모달 띄우기
+    const openEditModal = (ItemId) => {
+        console.log(ItemId);
+        // 1. id로 해당 item 찾기
+        const item = ingredients.find(item => item.id === ItemId);
+
+        // 2. 찾은 item에서 필요한 필드만 추출
+        if (item) {
+            const data = {
+                id: item.id,
+                name: item.name,
+                quantity: item.quantity,   // 정수 그대로
+                memo: item.memo,
+            };
+            console.log(data);
+
+            setSelectedItem(data);
+            setIsEditModalVisible(true);
+        }
+    };
+    
+    const handleSaveChnage = (updatedItemFIeld) => {
+        setIngredients(prev =>
+            prev.map(item =>
+                item.id === updatedItemFIeld.id
+                    ? { ...item, ...updatedItemFIeld }   // 전체 필드 유지 + 수정된 필드 덮어쓰기
+                    : item
+            )
+        );
+    };
+
+
+    //
     
 
  
     
-    
+    // SWIPE LIST에서 삭제 버튼 관련 이벤트
     function closeItem(rowMap, rowKey) {
         if (rowMap[rowKey]) {
             console.log(rowKey);
@@ -204,7 +230,7 @@ export default function FridgeScreen() {
     }
     
     
-    function deleteIng(ingredients, setIngredients, rowMap, rowItemId) {
+    function deleteIng(rowMap, rowItemId) {
         closeItem(rowMap, rowItemId);
         const newData = [...ingredients];
         const prevIndex = ingredients.findIndex(item => item.id === rowItemId);
@@ -214,7 +240,7 @@ export default function FridgeScreen() {
         newData.splice(prevIndex, 1);
         setIngredients(newData);
     }
-    
+    //
     
     1
     
@@ -241,9 +267,7 @@ export default function FridgeScreen() {
                             renderItem={(data, rowMap) => (
                                 <View style={styles.itemContainer}>
                                 <TouchableOpacity  
-                                
-                                        onPress={openEditModal}
-                                >
+                                        onPress={() =>openEditModal(data.item.id)}                              >
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                         <Text style={styles.itemName}>{data.item.name}</Text>
                                         <Text style={styles.itemInfo}>
@@ -257,7 +281,7 @@ export default function FridgeScreen() {
                             renderHiddenItem={(data, rowMap) => (
                                 <View style = {styles.hiddenItemContainer}>
                                     <TouchableOpacity style = {styles.deleteButton}
-                                        onPress={() => deleteIng(ingredients, setIngredients, rowMap, data.item.id)}
+                                        onPress={() => deleteIng(rowMap, data.item.id)}
                         
                                     >
                                         <Text style={styles.deleteText}>삭제</Text>
@@ -274,7 +298,19 @@ export default function FridgeScreen() {
 
 
             )}
-            {/* <EditFridgeIng isEditModalVisible={isEditModalVisible} setIsEditModalVisible={setIsEditModalVisible}/> */}
+
+            {selectedItem && (
+                <EditFridgeIng
+                    visible={isEditModalVisible}
+                    id={selectedItem.id}
+                    name={selectedItem.name}
+                    quantity={selectedItem.quantity}
+                    memo={selectedItem.memo}
+                    onSave={handleSaveChnage}       // ← 부모가 정의한 함수
+                    closeModal={setIsEditModalVisible}/>
+
+            )}
+            
             <TouchableOpacity
                 style={styles.fab}
                 onPress={() => setIsSearchVisible(true)}
@@ -282,6 +318,7 @@ export default function FridgeScreen() {
                 <Ionicons name="add" size={24} color="#fff" />
             </TouchableOpacity>
 
+            {/* 검색 모달, 재료 추가 모달 */}
             <Modal visible={isSearchVisible} transparent animationType="fade">
                 <View style={styles.modalOverlay}>
                     <View style={styles.searchModal}>

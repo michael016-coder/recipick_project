@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 import React, { useState } from "react";
-import { Animated, Image, StyleSheet, TextInput, TouchableOpacity } from "react-native";
+import { Animated, StyleSheet } from "react-native";
 
 export default function FridgeLayout() {
     const [searchMode, setSearchMode] = useState(false);
@@ -22,41 +22,19 @@ export default function FridgeLayout() {
     return (
         <Stack
             screenOptions={{
-                headerShown: false,
+                headerShown: true,
                 animation: 'slide_from_right', // 오른쪽에서 슬라이드
             }}
         >
             <Stack.Screen
                 name="index"
                 options={{
-                    headerTitle: () => (
-                        searchMode ? (
-                            <Animated.View style={[styles.searchBox, { opacity: fadeAnim }]}>
-                                <TextInput
-                                    value={searchQuery}
-                                    onChangeText={setSearchQuery}
-                                    placeholder="재료 검색..."
-                                    style={styles.searchInput}
-                                    autoFocus
-                                />
-                            </Animated.View>
-                        ) : (
-                            <Animated.Text style={[styles.title, { opacity: fadeAnim }]}>
-                                냉장고
-                            </Animated.Text>
-                        )
-                    ),
-                    headerRight: () => (
-                        <TouchableOpacity onPress={toggleSearch} style={styles.iconButton}>
-                               <Image
-                                source={require('../../../assets/icons/search.png')}
-                                style={{ width: 26, height: 26 }}
-                                        />
-                        </TouchableOpacity>
-                    ),
-                }}
+                    title: 'MyFridge',   // 헤더 텍스트
+                    headerTitleAlign: 'center', // 중앙 정렬 (원하면)
+                    headerTitleStyle: styles.title
+
+                  }}
             />
-            <Stack.Screen name="addIng" />    {/* 재료 추가 화면 */}
         </Stack>
 
       
@@ -64,13 +42,39 @@ export default function FridgeLayout() {
 }
 
 
-
+// options = {{
+//     headerTitle: () => (
+//         searchMode ? (
+//             <Animated.View style={[styles.searchBox, { opacity: fadeAnim }]}>
+//                 <TextInput
+//                     value={searchQuery}
+//                     onChangeText={setSearchQuery}
+//                     placeholder="재료 검색..."
+//                     style={styles.searchInput}
+//                     autoFocus
+//                 />
+//             </Animated.View>
+//         ) : (
+//             <Animated.Text style={[styles.title, { opacity: fadeAnim }]}>
+//                 MyFridge
+//             </Animated.Text>
+//         )
+//     ),
+//         headerRight: () => (
+//             <TouchableOpacity onPress={toggleSearch} style={styles.iconButton}>
+//                 <Image
+//                     source={require('../../../assets/icons/search.png')}
+//                     style={{ width: 26, height: 26 }}
+//                 />
+//             </TouchableOpacity>
+//         ),
 
 const styles = StyleSheet.create({
     title: {
-        fontSize: 18,
+        fontSize: 30,
         fontWeight: "600",
         textAlign: "center",
+        fontFamily:"CedarvilleCursive_400Regular"
     },
     iconButton: {
         marginRight: 10,
