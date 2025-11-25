@@ -41,7 +41,11 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1, backgroundColor: '#fff'}}>
         <ThemeProvider value={colorScheme === 'white' ? DarkTheme : DefaultTheme}>
-          <Stack>         
+          <Stack
+            screenOptions={{
+              animation: "slide_from_right", // 모든 화면 전환에 슬라이드 애니메이션 적용
+            }}
+          >         
             <Stack.Screen
               name="login"
               options={{ headerShown: false }}

@@ -9,7 +9,9 @@ interface BookmarkCardProps {
   imageUrl: string;
   // 식재료 정보가 필요하므로 props에 추가합니다.
   ingredients: string[];
-  onRemove: (id: number) => void;
+  onRemove?: (id: number) => void; // 북마크 화면에서 사용
+  onBookmarkToggle?: (id: number) => void; // 레시피 탐색 화면에서 사용
+  isBookmarked?: boolean; // 북마크 상태 (기본값: true)
 }
 
 export default function BookmarkCard({
@@ -18,16 +20,26 @@ export default function BookmarkCard({
   imageUrl,
   ingredients, // Prop 추가
   onRemove,
+  onBookmarkToggle,
+  isBookmarked = true, // 기본값은 북마크된 상태
 }: BookmarkCardProps) {
-  const navigation = useNavigation(); // 👈 내비게이션 훅 사용
+  const navigation = useNavigation() as any; // 👈 내비게이션 훅 사용 (타입 에러 방지)
 
-  // 1. 북마크 버튼 클릭 시: 목록에서 카드를 제거합니다.
+  // 1. 북마크 버튼 클릭 시
   const handleBookmarkToggle = () => {
-    onRemove(id);
-    console.log(`${foodName} 북마크가 해제되고 목록에서 제거됩니다.`);
+    // 북마크 화면: 북마크 해제 시 목록에서 제거
+    if (isBookmarked && onRemove) {
+      onRemove(id);
+      console.log(`${foodName} 북마크가 해제되고 목록에서 제거됩니다.`);
+    }
+    // 레시피 탐색 화면: 북마크 토글 (추가/해제)
+    if (onBookmarkToggle) {
+      onBookmarkToggle(id);
+      console.log(`${foodName} 북마크 ${isBookmarked ? '해제' : '추가'}됩니다.`);
+    }
   };
 
-  // 2. 💡 카드 전체 클릭 시: 상세 페이지로 이동합니다.
+  // 2. 💡 카드 클릭 시: 상세 페이지로 이동합니다.
   const handleCardPress = () => {
     // 'recipeDetail' 라우트로 이동하며, ID와 이름을 파라미터로 전달합니다.
     navigation.navigate("recipeDetail", { recipeId: id, foodName: foodName });
@@ -35,34 +47,38 @@ export default function BookmarkCard({
   };
 
   return (
-    // 💡 카드 전체를 TouchableOpacity로 감싸고 handleCardPress 연결
-    <TouchableOpacity onPress={handleCardPress} style={styles.cardContainer}>
-      {/* 1. 상단 이미지 영역 (북마크 버튼 포함) */}
-      <View style={styles.imageContainer}>
-        <Image source={{ uri: imageUrl }} style={styles.image} />
+    <View style={styles.cardContainer}>
+      {/* 💡 북마크 버튼을 제외한 부분만 클릭 가능 */}
+      <TouchableOpacity onPress={handleCardPress} activeOpacity={0.9}>
+        {/* 1. 상단 이미지 영역 */}
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: imageUrl }} style={styles.image} />
+        </View>
 
-        {/* 3. 북마크 버튼 (오른쪽 상단에 절대 위치로 배치) */}
-        <TouchableOpacity
-          onPress={handleBookmarkToggle}
-          style={styles.bookmarkButton}
-        >
-          <Ionicons
-            name={"bookmark"} // 북마크 화면이므로 항상 채워진 아이콘
-            size={24}
-            color={"#FFD700"}
-          />
-        </TouchableOpacity>
-      </View>
+        {/* 2. 정보 영역 (이미지 아래) */}
+        <View style={styles.infoContainer}>
+          <Text style={styles.foodName}>{foodName}</Text>
+          <Text style={styles.description}>
+            {/* 식재료 표시 */}
+            주요 재료: {ingredients ? ingredients.join(", ") : "정보 없음"}
+          </Text>
+        </View>
+      </TouchableOpacity>
 
-      {/* 2. 정보 영역 (이미지 아래) */}
-      <View style={styles.infoContainer}>
-        <Text style={styles.foodName}>{foodName}</Text>
-        <Text style={styles.description}>
-          {/* 식재료 표시 */}
-          주요 재료: {ingredients ? ingredients.join(", ") : "정보 없음"}
-        </Text>
-      </View>
-    </TouchableOpacity>
+      {/* 3. 북마크 버튼 (오른쪽 상단에 절대 위치로 배치) */}
+      <TouchableOpacity
+        onPress={handleBookmarkToggle}
+        style={styles.bookmarkButton}
+        activeOpacity={0.7}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <Ionicons
+          name={isBookmarked ? "bookmark" : "bookmark-outline"}
+          size={24}
+          color={isBookmarked ? "#FFD700" : "#ffffff"}
+        />
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -110,5 +126,6 @@ const styles = StyleSheet.create({
     padding: 8,
     backgroundColor: "rgba(0, 0, 0, 0.4)", // 반투명 배경
     borderRadius: 20,
+    zIndex: 10, // 클릭 우선순위 높임
   },
 });

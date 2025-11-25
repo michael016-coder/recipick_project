@@ -1,57 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { useState } from "react";
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { useNavigation } from "expo-router";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function MyPageScreen() {
-  const router = useRouter();
+  const navigation = useNavigation() as any;
 
-  const handleLogout = () => {
-    Alert.alert("로그아웃", "정말 로그아웃 하시겠습니까?", [
-      { text: "취소", style: "cancel" },
-      {
-        text: "로그아웃",
-        style: "destructive",
-        onPress: () => {
-          // TODO: 실제 로그아웃 로직
-          router.replace("/login");
-        },
-      },
-    ]);
-  };
-
-  const handleWithdraw = () => {
-    Alert.alert("탈퇴", "정말 탈퇴하시겠습니까? 모든 데이터가 삭제됩니다.", [
-      { text: "취소", style: "cancel" },
-      {
-        text: "탈퇴",
-        style: "destructive",
-        onPress: () => {
-          // TODO: 실제 탈퇴 로직
-          Alert.alert("탈퇴 완료", "탈퇴가 완료되었습니다.");
-        },
-      },
-    ]);
-  };
-
-  const handleChangePassword = () => {
-    Alert.alert("비밀번호 변경", "비밀번호 변경 기능은 곧 추가됩니다.");
-  };
-
-  const handleSendFeedback = () => {
-    Alert.alert("의견 보내기", "의견 보내기 기능은 곧 추가됩니다.");
-  };
-
-  const handleDonate = () => {
-    Alert.alert("후원하기", "후원하기 기능은 곧 추가됩니다.");
+  const handleNavigate = (screenName: string) => {
+    navigation.navigate(screenName);
   };
 
   const menuItems = [
@@ -59,33 +15,33 @@ export default function MyPageScreen() {
       id: "logout",
       title: "로그아웃",
       icon: "log-out-outline",
-      onPress: handleLogout,
+      screenName: "logout",
       destructive: true,
     },
     {
       id: "withdraw",
       title: "탈퇴",
       icon: "person-remove-outline",
-      onPress: handleWithdraw,
+      screenName: "withdraw",
       destructive: true,
     },
     {
       id: "changePassword",
       title: "비밀번호 변경",
       icon: "lock-closed-outline",
-      onPress: handleChangePassword,
+      screenName: "changePassword",
     },
     {
       id: "feedback",
       title: "의견 보내기",
       icon: "mail-outline",
-      onPress: handleSendFeedback,
+      screenName: "feedback",
     },
     {
       id: "donate",
       title: "후원하기",
       icon: "heart-outline",
-      onPress: handleDonate,
+      screenName: "donate",
     },
   ];
 
@@ -97,7 +53,7 @@ export default function MyPageScreen() {
             <TouchableOpacity
               key={item.id}
               style={styles.menuItem}
-              onPress={item.onPress}
+              onPress={() => handleNavigate(item.screenName)}
               activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
