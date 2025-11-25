@@ -1,5 +1,6 @@
 import Feather from '@expo/vector-icons/Feather';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { useNavigation } from 'expo-router';
 import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,14 +20,17 @@ const MOCK_CART_ITEMS = [
 ];
 
 export default function CartScreen() {
+    const navigation = useNavigation() as any;
+
     const handleClearCart = () => {
         // 장바구니 초기화 로직
         console.log('장바구니 초기화');
     };
 
     const handleSearchRecipe = () => {
-        // 레시피 탐색 로직
-        console.log('레시피 탐색');
+        // 레시피 탐색 화면으로 이동
+        // expo-router에서 같은 Stack 내에서는 navigation.navigate 사용
+        navigation.navigate('recipeSearch');
     };
 
     const renderItem = ({ item }: { item: typeof MOCK_CART_ITEMS[0] }) => {

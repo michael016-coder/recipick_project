@@ -24,6 +24,7 @@ export default function BookmarkLayout() {
         options={{
           headerShown: true, // 상세 페이지는 헤더를 보여줍니다.
           title: "레시피 상세 정보", // 헤더에 표시될 제목
+          animation: "slide_from_right", // 슬라이드 애니메이션
         }}
       />
     </Stack>
