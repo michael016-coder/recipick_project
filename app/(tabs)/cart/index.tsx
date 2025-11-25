@@ -1,25 +1,29 @@
 import Feather from '@expo/vector-icons/Feather';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import React from 'react';
+import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SwipeListView } from 'react-native-swipe-list-view';
 
 
 // 목업 데이터 (10개)
-const MOCK_CART_ITEMS = [
-    { id: '1', name: '사과', source: 'fridge' }, // 냉장고에서 온 재료
-    { id: '2', name: '당근', source: 'search' }, // 검색으로 추가한 재료
-    { id: '3', name: '양파', source: 'fridge' },
-    { id: '4', name: '닭가슴살', source: 'search' },
-    { id: '5', name: '계란', source: 'fridge' },
-    { id: '6', name: '치즈', source: 'search' },
-    { id: '7', name: '양배추', source: 'fridge' },
-    { id: '8', name: '마늘', source: 'search' },
-    { id: '9', name: '버터', source: 'fridge' },
-    { id: '10', name: '두부', source: 'search' },
-];
 
 export default function CartScreen() {
+
+
+    const [MOCK_CART_ITEMS, setIngredients] = useState([
+        { id: '1', name: '사과', source: 'fridge' }, // 냉장고에서 온 재료
+        { id: '2', name: '당근', source: 'search' }, // 검색으로 추가한 재료
+        { id: '3', name: '양파', source: 'fridge' },
+        { id: '4', name: '닭가슴살', source: 'search' },
+        { id: '5', name: '계란', source: 'fridge' },
+        { id: '6', name: '치즈', source: 'search' },
+        { id: '7', name: '양배추', source: 'fridge' },
+        { id: '8', name: '마늘', source: 'search' },
+        { id: '9', name: '버터', source: 'fridge' },
+        { id: '10', name: '두부', source: 'search' },
+    ]);
+
+
     const handleClearCart = () => {
         // 장바구니 초기화 로직
         console.log('장바구니 초기화');
@@ -30,7 +34,7 @@ export default function CartScreen() {
         console.log('레시피 탐색');
     };
 
-    function closeItem(rowMap, rowKey) {
+    function closeItem(rowMap,rowKey) {
         if (rowMap[rowKey]) {
             console.log(rowKey);
             rowMap[rowKey].closeRow();
@@ -46,7 +50,7 @@ export default function CartScreen() {
         console.log(rowItemId);
         console.log(rowMap[rowItemId]);
         newData.splice(prevIndex, 1);
-        // setIngredients(newData);
+        setIngredients(newData);
     }
 
     return (
@@ -56,7 +60,7 @@ export default function CartScreen() {
                  <SwipeListView 
                     keyExtractor={(item) => item.id}
                     data={MOCK_CART_ITEMS}
-                    renderItem={(data) => (                 
+                    renderItem={(data,rowMap) => (                 
                         <View style={styles.itemContainer}>
                             <Text style={styles.itemName}>{data.item.name}</Text>
                             {data.item.source === 'fridge' ? (
