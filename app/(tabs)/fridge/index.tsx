@@ -431,17 +431,6 @@ export default function FridgeScreen() {
 
 
 const styles = StyleSheet.create({
-    header: {
-        paddingTop: 12,
-        paddingBottom: 16,
-        alignItems: 'center',
-        borderBottomWidth: 0,
-    },
-    headerText: {
-        fontSize: 36,
-        fontFamily: 'CedarvilleCursive_400Regular',
-        color: '#111827',
-    },
     container: {
         flex: 1,
         backgroundColor: '#ffffff',

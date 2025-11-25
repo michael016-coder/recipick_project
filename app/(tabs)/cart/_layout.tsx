@@ -1,15 +1,31 @@
-import { Stack } from 'expo-router';
+import { Stack } from "expo-router";
+import { StyleSheet } from "react-native";
 
-export default function FridgeLayout() {
-    return (
-        <Stack
-            screenOptions={{
-                headerShown: false,
-                animation: 'slide_from_right', // 오른쪽에서 슬라이드
-            }}
-        >
-            <Stack.Screen name="index" />  {/* 기본 냉장고 메인 화면 */}
-            <Stack.Screen name="add" />    {/* 재료 추가 화면 */}
-        </Stack>
-    );
+export default function CartLayout() {
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: true,
+        animation: "slide_from_right",
+      }}
+    >
+      <Stack.Screen
+        name="index"
+        options={{
+          title: "Cart",
+          headerTitleAlign: "center",
+          headerTitleStyle: styles.title,
+        }}
+      />
+    </Stack>
+  );
 }
+
+const styles = StyleSheet.create({
+  title: {
+    fontSize: 30,
+    fontWeight: "600",
+    textAlign: "center",
+    fontFamily: "CedarvilleCursive_400Regular",
+  },
+});
