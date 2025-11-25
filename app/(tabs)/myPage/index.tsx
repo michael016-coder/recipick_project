@@ -91,9 +91,6 @@ export default function MyPageScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>MyPage</Text>
-      </View>
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <View style={styles.menuContainer}>
           {menuItems.map((item) => (
@@ -135,16 +132,6 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#ffffff",
-  },
-  header: {
-    paddingTop: 12,
-    paddingBottom: 16,
-    alignItems: "center",
-  },
-  headerText: {
-    fontSize: 36,
-    fontFamily: "CedarvilleCursive_400Regular",
-    color: "#111827",
   },
   container: {
     flex: 1,

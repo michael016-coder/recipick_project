@@ -29,11 +29,10 @@ export default function FridgeLayout() {
             <Stack.Screen
                 name="index"
                 options={{
-                    title: 'MyFridge',   // 헤더 텍스트
-                    headerTitleAlign: 'center', // 중앙 정렬 (원하면)
+                    title: 'myFridge',
+                    headerTitleAlign: 'center',
                     headerTitleStyle: styles.title
-
-                  }}
+                }}
             />
         </Stack>
 

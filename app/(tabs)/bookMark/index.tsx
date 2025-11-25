@@ -52,9 +52,6 @@ export default function BookmarkScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.headerBar}>
-        <Text style={styles.headerText}>Archive</Text>
-      </View>
       <FlatList
         data={recipes}
         renderItem={renderItem}
@@ -73,18 +70,7 @@ export default function BookmarkScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f0f0",
-  },
-  headerBar: {
-    paddingTop: 12,
-    paddingBottom: 16,
-    alignItems: "center",
-    backgroundColor: "#f0f0f0",
-  },
-  headerText: {
-    fontSize: 36,
-    fontFamily: "CedarvilleCursive_400Regular",
-    color: "#111827",
+    backgroundColor: "#ffffff",
   },
   emptyContainer: {
     flex: 1,

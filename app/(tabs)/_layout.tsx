@@ -2,12 +2,11 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 //개발 중 추가
-import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 
 export default function TabLayout() {
@@ -17,7 +16,8 @@ export default function TabLayout() {
     <Tabs
       initialRouteName="fridge"
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: '#0095F6', // Instagram blue
+        tabBarInactiveTintColor: '#000000', // Black
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarShowLabel: false,
@@ -26,14 +26,11 @@ export default function TabLayout() {
       <Tabs.Screen
         name="fridge"
         options={{
-          tabBarIcon: ({ focused }) => (
-            <Image
-              source={
-                focused
-                  ? require('../../assets/icons/fridge.png')
-                  : require('../../assets/icons/fridge.png')
-              }
-              style={{ width: 26, height: 26 }}
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="fridge-outline"
+              size={26}
+              color={color}
             />
           ),
         }}
@@ -41,14 +38,11 @@ export default function TabLayout() {
       <Tabs.Screen
         name="search"
         options={{
-          tabBarIcon: ({ focused }) => (
-            <Image
-              source={
-                focused
-                  ? require('../../assets/icons/search.png')
-                  : require('../../assets/icons/search.png')
-              }
-              style={{ width: 26, height: 26 }}
+          tabBarIcon: ({ color }) => (
+            <Feather
+              name="search"
+              size={26}
+              color={color}
             />
           ),
         }}
@@ -56,14 +50,11 @@ export default function TabLayout() {
       <Tabs.Screen
         name="cart"
         options={{
-          tabBarIcon: ({ focused }) => (
-            <Image
-              source={
-                focused
-                  ? require('../../assets/icons/cart.png')
-                  : require('../../assets/icons/cart.png')
-              }
-              style={{ width: 26, height: 26 }}
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="shopping-outline"
+              size={26}
+              color={color}
             />
           ),
         }}
@@ -71,14 +62,11 @@ export default function TabLayout() {
       <Tabs.Screen
         name="bookMark"
         options={{
-          tabBarIcon: ({ focused }) => (
-            <Image
-              source={
-                focused
-                  ? require('../../assets/icons/bookmark.png')
-                  : require('../../assets/icons/bookmark.png')
-              }
-              style={{ width: 26, height: 26 }}
+          tabBarIcon: ({ color }) => (
+            <Feather
+              name="bookmark"
+              size={26}
+              color={color}
             />
           ),
         }}
@@ -86,9 +74,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="myPage"
         options={{
-          tabBarIcon: ({ focused, color }) => (
-            <Ionicons
-              name={focused ? "person-circle" : "person-circle-outline"}
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="account-circle-outline"
               size={26}
               color={color}
             />
