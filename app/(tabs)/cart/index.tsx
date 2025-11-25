@@ -1,26 +1,31 @@
 import Feather from '@expo/vector-icons/Feather';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useNavigation } from 'expo-router';
-import React from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SwipeListView } from 'react-native-swipe-list-view';
+
 
 // 목업 데이터 (10개)
-const MOCK_CART_ITEMS = [
-    { id: '1', name: '사과', source: 'fridge' }, // 냉장고에서 온 재료
-    { id: '2', name: '당근', source: 'search' }, // 검색으로 추가한 재료
-    { id: '3', name: '양파', source: 'fridge' },
-    { id: '4', name: '닭가슴살', source: 'search' },
-    { id: '5', name: '계란', source: 'fridge' },
-    { id: '6', name: '치즈', source: 'search' },
-    { id: '7', name: '양배추', source: 'fridge' },
-    { id: '8', name: '마늘', source: 'search' },
-    { id: '9', name: '버터', source: 'fridge' },
-    { id: '10', name: '두부', source: 'search' },
-];
 
 export default function CartScreen() {
+
     const navigation = useNavigation() as any;
+
+
+    const [MOCK_CART_ITEMS, setIngredients] = useState([
+        { id: '1', name: '사과', source: 'fridge' }, // 냉장고에서 온 재료
+        { id: '2', name: '당근', source: 'search' }, // 검색으로 추가한 재료
+        { id: '3', name: '양파', source: 'fridge' },
+        { id: '4', name: '닭가슴살', source: 'search' },
+        { id: '5', name: '계란', source: 'fridge' },
+        { id: '6', name: '치즈', source: 'search' },
+        { id: '7', name: '양배추', source: 'fridge' },
+        { id: '8', name: '마늘', source: 'search' },
+        { id: '9', name: '버터', source: 'fridge' },
+        { id: '10', name: '두부', source: 'search' },
+    ]);
+
 
     const handleClearCart = () => {
         // 장바구니 초기화 로직
@@ -33,38 +38,66 @@ export default function CartScreen() {
         navigation.navigate('recipeSearch');
     };
 
-    const renderItem = ({ item }: { item: typeof MOCK_CART_ITEMS[0] }) => {
-        return (
-            <View style={styles.itemContainer}>
-                <Text style={styles.itemName}>{item.name}</Text>
-                {item.source === 'fridge' ? (
-                    <MaterialCommunityIcons
-                        name="fridge-outline"
-                        size={24}
-                        color="#6b7280"
-                    />
-                ) : (
-                    <Feather
-                        name="search"
-                        size={24}
-                        color="#6b7280"
-                    />
-                )}
-            </View>
-        );
-    };
+    function closeItem(rowMap,rowKey) {
+        if (rowMap[rowKey]) {
+            console.log(rowKey);
+            rowMap[rowKey].closeRow();
+        }
+    }
+
+
+    function deleteIng(rowMap, rowItemId) {
+        closeItem(rowMap, rowItemId);
+        const newData = [...MOCK_CART_ITEMS];
+        const prevIndex = MOCK_CART_ITEMS.findIndex(item => item.id === rowItemId);
+        console.log(MOCK_CART_ITEMS[prevIndex]);
+        console.log(rowItemId);
+        console.log(rowMap[rowItemId]);
+        newData.splice(prevIndex, 1);
+        setIngredients(newData);
+    }
 
     return (
-        <SafeAreaView style={styles.safeArea}>
+       
             <View style={styles.container}>
-                <FlatList
-                    data={MOCK_CART_ITEMS}
-                    renderItem={renderItem}
+                <View style={styles.SwipeListContainer}>
+                 <SwipeListView 
                     keyExtractor={(item) => item.id}
-                    contentContainerStyle={styles.listContent}
-                    showsVerticalScrollIndicator={false}
-                />
-                
+                    data={MOCK_CART_ITEMS}
+                    renderItem={(data,rowMap) => (                 
+                        <View style={styles.itemContainer}>
+                            <Text style={styles.itemName}>{data.item.name}</Text>
+                            {data.item.source === 'fridge' ? (
+                                <MaterialCommunityIcons
+                                    name="fridge-outline"
+                                    size={24}
+                                    color="#6b7280"
+                                />
+                            ) : (
+                                <Feather
+                                    name="search"
+                                    size={24}
+                                    color="#6b7280"
+                                />
+                            )}
+                        </View>       
+                    )}
+                    renderHiddenItem={(data, rowMap) => (
+                        <View style = {styles.hiddenItemContainer}>
+                            <TouchableOpacity style = {styles.deleteButton}
+                                onPress={() => deleteIng(rowMap, data.item.id)}
+                            >
+                                <Text style={styles.deleteText}>삭제</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                    disableRightSwipe={true}
+                    rightOpenValue={-75}                  
+                    friction={200}
+                    tension={200}
+
+                />             
+                </View>
                 {/* 하단 버튼 영역 */}
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity
@@ -82,17 +115,19 @@ export default function CartScreen() {
                     </TouchableOpacity>
                 </View>
             </View>
-        </SafeAreaView>
+        
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: {
+    container: {
         flex: 1,
         backgroundColor: '#ffffff',
     },
-    container: {
-        flex: 1,
+    SwipeListContainer: {
+        paddingHorizontal: 20, // 전체 여백
+        marginBottom: 20,
+        width: "100%",
     },
     listContent: {
         paddingHorizontal: 20,
@@ -106,7 +141,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f9fafb',
         borderRadius: 12,
         padding: 16,
-        marginBottom: 10,
+        marginTop: 10,
         borderWidth: 1,
         borderColor: '#e5e7eb',
     },
@@ -150,5 +185,28 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         color: '#ffffff',
+    },
+    hiddenItemContainer: {
+        alignItems: "center",
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        marginTop: 10,
+    },
+    deleteButton: {
+        backgroundColor: '#f44336',
+        alignItems: 'center',
+        justifyContent: 'center',
+        bottom: 0,
+        position: 'absolute',
+        top: 0,
+        width: 75,
+        borderRadius: 12,
+
+    },
+    deleteText: {
+        color: "#fff",
+        fontWeight: "bold",
+        fontSize: 16,
     },
 });
