@@ -1,24 +1,50 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
+
+import useAuthStore from '@/src/stores/authStore';
+
 
 export default function LoginScreen() {
   const router = useRouter();
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    // TODO: 실제 로그인 로직 연동
-    // 임시로 로그인 성공 시 냉장고 탭으로 이동
-    router.replace("/(tabs)/fridge");
+  const loginAction = useAuthStore(state => state.login);
+  const isAuthLoading = useAuthStore(state => state.isAuthLoading);
+
+
+
+  
+  const handleLogin = async () => {
+    if (!id || !password) {
+      Alert.alert("경고", "아이디와 비밀번호를 모두 입력해주세요.");
+      return;
+    }
+
+    try {
+      // 💡 3. Zustand login 액션 호출 (비동기 처리)
+      // login 액션 내부에서 EncryptedStorage 저장 및 Zustand 상태 업데이트가 완료됨.
+      await loginAction(id, password);
+
+      // 4. 로그인 성공 후 라우팅 (replace를 사용하여 로그인 화면 스택에서 제거)
+      router.replace("/(tabs)/fridge");
+
+    } catch (error) {
+      // 5. 로그인 실패 시 에러 처리
+      const errorMessage = error.response?.data?.message || "로그인 중 오류가 발생했습니다. 아이디와 비밀번호를 확인해주세요.";
+      Alert.alert("로그인 실패", errorMessage);
+    }
   };
 
   const handleGoToSignup = () => {
@@ -44,6 +70,7 @@ export default function LoginScreen() {
             style={styles.input}
             autoCapitalize="none"
             autoCorrect={false}
+            //editable={isAuthLoading} // 로딩 중 입력 비활성화
           />
 
           <TextInput
@@ -53,13 +80,26 @@ export default function LoginScreen() {
             placeholderTextColor="#aaa"
             style={styles.input}
             secureTextEntry
+            //editable={isAuthLoading} // 로딩 중 입력 비활성화
           />
 
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>로그인</Text>
+          <TouchableOpacity 
+            style={styles.loginButton} 
+            onPress={handleLogin}
+            //disabled={isAuthLoading} // 로딩 중 버튼 비활성화
+            >
+            {!isAuthLoading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.loginButtonText}>로그인</Text>
+            )}
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.signupButton} onPress={handleGoToSignup}>
+          <TouchableOpacity
+           style={styles.signupButton} 
+           onPress={handleGoToSignup}
+           //disabled={isAuthLoading} // 로딩 중 버튼 비활성화
+           >
             <Text style={styles.signupText}>아직 계정이 없다면 회원가입하기</Text>
           </TouchableOpacity>
         </View>
