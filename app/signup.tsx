@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -10,15 +11,17 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
+
+import { signupRequest } from '@/src/api/auth';
 
 export default function SignupScreen() {
   const router = useRouter();
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
+  const [isSignUpLoading, setIsSignUpLoading] = useState(false);
   const handleBackToLogin = () => {
     router.back();
   };
@@ -30,10 +33,23 @@ export default function SignupScreen() {
     return null;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
+
     const error = validateForm();
     if (error) {
       Alert.alert("회원가입 실패", error);
+      return;
+    }
+    setIsSignUpLoading(true);
+
+    try{
+
+      await signupRequest(userId, password, confirmPassword);
+      setIsSignUpLoading(false);
+
+    } catch (error) {
+      setIsSignUpLoading(false);
+      Alert.alert("회원가입 실패", (error as Error).message);
       return;
     }
 
@@ -94,9 +110,12 @@ export default function SignupScreen() {
               secureTextEntry
             />
           </View>
-
           <TouchableOpacity style={[styles.button, styles.submit]} onPress={handleSubmit}>
-            <Text style={styles.buttonText}>회원가입</Text>
+           {isSignUpLoading ? (
+                        <ActivityIndicator color="white" />
+                      ) : (
+              <Text style={styles.buttonText}>회원가입</Text>
+                      )}
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -167,5 +186,3 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
-
-
