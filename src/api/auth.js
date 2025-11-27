@@ -1,6 +1,6 @@
 // RECIPICK/api/auth.js
 
-import EncryptedStorage from "react-native-encrypted-storage";
+import * as SecureStore from 'expo-secure-store';
 import apiClient from "./api.js";
 
 // ===================================
@@ -25,8 +25,8 @@ export const loginRequest = async (loginId, password) => {
 
     // 💡 핵심: 토큰을 Secure Storage에 저장
     if (accessToken && refreshToken) {
-      await EncryptedStorage.setItem("accessToken", accessToken);
-      await EncryptedStorage.setItem("refreshToken", refreshToken);
+      await SecureStore.setItemAsync("accessToken", accessToken);
+      await SecureStore.setItemAsync("refreshToken", refreshToken);
     } else {
       console.warn("로그인 성공했으나 서버 응답에 토큰이 누락됨");
     }
@@ -38,7 +38,29 @@ export const loginRequest = async (loginId, password) => {
   }
 };
 
+
+
 // ... (registerRequest, getAuthMe 함수는 변경 없음) ...
+
+export const signupRequest = async (loginId, password, checkPassword) => {
+  try {
+
+    const response = await apiClient.post("/api/auth/signup", {
+      loginId: loginId,
+      password: password,
+      checkPassword: checkPassword,
+    });
+
+    return response.data;
+
+  } catch (error) {
+    console.error("회원가입 API 오류:", error);
+    throw error;
+  }
+};
+
+
+
 
 /**
  * 로그아웃 API 요청 함수 및 클라이언트 토큰 삭제
@@ -57,8 +79,8 @@ export const logoutRequest = async () => {
     );
   } finally {
     // 클라이언트 Secure Storage에서 토큰 삭제 (성공/실패 무관)
-    await EncryptedStorage.removeItem("accessToken");
-    await EncryptedStorage.removeItem("refreshToken");
+    await SecureStore.deleteItemAsync("accessToken");
+    await SecureStore.deleteItemAsync("refreshToken");
   }
 };
 
@@ -79,7 +101,7 @@ export const withdrawRequest = async () => {
     throw error;
   } finally {
     // 성공/실패와 관계없이, 탈퇴 후에는 토큰을 반드시 삭제
-    await EncryptedStorage.removeItem("accessToken");
-    await EncryptedStorage.removeItem("refreshToken");
+    await SecureStore.deleteItemAsync("accessToken");
+    await SecureStore.deleteItemAsync("refreshToken");
   }
 };
