@@ -96,6 +96,8 @@ export const useAuthStore = create((set) => ({
         } catch (error) {
             // 서버 로그아웃 요청 실패하더라도 클라이언트 토큰은 삭제되었으므로 상태 초기화 진행
             console.warn("Server Logout Request Failed, but client state will be reset:", error);
+            throw error; // 에러를 호출한 컴포넌트로 전달
+
         } finally {
             // 2. Zustand Store 상태 초기화 (성공/실패 무관하게 토큰 삭제 후 상태는 무조건 초기화)
             set({
