@@ -39,13 +39,16 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
+      {/* safeareaview 제거하고 각 개별 페이지 필요하면 적용하는 것으로 바꿀 예정 */}
       <SafeAreaView style={{ flex: 1, backgroundColor: '#fff'}}>
         <ThemeProvider value={colorScheme === 'white' ? DarkTheme : DefaultTheme}>
           <Stack
             screenOptions={{
               animation: "slide_from_right", // 모든 화면 전환에 슬라이드 애니메이션 적용
             }}
-          >         
+          >
+              {/* (auth) 그룹을 쓴다면 아래처럼 경로가 바뀜 -> 나중에 이렇게 변경할 예정*/}
+              {/* <Stack.Screen name="(auth)" /> */}
             <Stack.Screen
               name="login"
               options={{ headerShown: false }}
