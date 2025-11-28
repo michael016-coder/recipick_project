@@ -23,10 +23,13 @@ export const loginRequest = async (loginId, password) => {
     // 서버 응답에서 토큰을 추출
     const { accessToken, refreshToken } = response.data;
 
+
     // 💡 핵심: 토큰을 Secure Storage에 저장
     if (accessToken && refreshToken) {
       await SecureStore.setItemAsync("accessToken", accessToken);
       await SecureStore.setItemAsync("refreshToken", refreshToken);
+      console.log("access token: ", accessToken);
+      console.log("refresh token: ", refreshToken);
     } else {
       console.warn("로그인 성공했으나 서버 응답에 토큰이 누락됨");
     }
@@ -55,6 +58,7 @@ export const signupRequest = async (loginId, password, checkPassword) => {
 
   } catch (error) {
     console.error("회원가입 API 오류:", error);
+    console.log("서버 에러 데이터:", error.response.data);
     throw error;
   }
 };
@@ -77,6 +81,7 @@ export const logoutRequest = async () => {
       "서버 로그아웃 요청 오류 (클라이언트 토큰은 삭제 시도):",
       error
     );
+    throw error;
   } finally {
     // 클라이언트 Secure Storage에서 토큰 삭제 (성공/실패 무관)
     await SecureStore.deleteItemAsync("accessToken");
