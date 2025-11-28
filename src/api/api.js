@@ -13,7 +13,14 @@ const apiClient = axios.create({
 
 //  요청 시 AccessToken 자동 포함
 apiClient.interceptors.request.use(async (config) => {
-  const accessToken = await SecureStore.getItemAsync("accesssToken");
+
+  if (config.url.includes("/auth/login") || config.url.includes("/auth/signup")) {
+    return config;
+  }
+
+  const accessToken = await SecureStore.getItemAsync("accessToken");
+  console.log("현재 URL:", config.url);
+  console.log("보내는 토큰:", accessToken);
   if (accessToken) {
     config.headers.Authorization = `Bearer ${ accessToken }`;
   }
