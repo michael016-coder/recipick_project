@@ -10,18 +10,30 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+
+import useAuthStore from '@/src/stores/authStore';
+
+
 export default function LogoutScreen() {
   const router = useRouter();
 
-  const handleLogout = () => {
+  const logoutAction = useAuthStore(state => state.logout);
+  const isAuthLoading = useAuthStore(state => state.isAuthLoading);
+
+  const handleLogout =  () => {
     Alert.alert("로그아웃", "정말 로그아웃 하시겠습니까?", [
       { text: "취소", style: "cancel" },
       {
         text: "로그아웃",
         style: "destructive",
-        onPress: () => {
-          // TODO: 실제 로그아웃 로직
-          router.replace("/login");
+        onPress: async  () => {
+          try{
+            await logoutAction();
+          } catch (error) {
+            console.log(error);
+          } finally{
+            router.replace("/login");
+          }
         },
       },
     ]);
