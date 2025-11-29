@@ -34,17 +34,25 @@ export const getBasketIngredients = async (pageable) => {
  * @param {object} pageable - 추가 후 반환받을 목록의 페이지네이션 정보
  * @returns {Promise<object>} 추가된 재료가 포함된 목록
  */
-export const addBasketIngredient = async (ingredientId, pageable) => {
+export const addBasketIngredient = async (ingredientId, pageable = {}) => {
   try {
-    // 💡 memberId 제거. ingredientId와 pageable을 쿼리로 사용
-    const params = {
-      ingredientId,
+    // 1. 쿼리 파라미터로 보낼 객체 구성
+    // pageable 안의 page, size, sort를 꺼내서(spread) 합쳐줍니다.
+    const queryParams = {
+      ingredientId: ingredientId,
       ...pageable,
     };
-    // POST 요청 시 Body는 null/빈 객체로, 쿼리 파라미터는 세 번째 인자로 전달
+
+    console.log("요청 파라미터:", queryParams);
+
+    // 2. POST 요청 전송
+    // post(url, body, config) 순서입니다.
+    // - Body: null (명세상 Body가 없으므로)
+    // - Config: { params: queryParams } 형태로 전달해야 URL 뒤에 ?key=value로 붙습니다.
     const response = await apiClient.post("/api/basket/ingredients", null, {
-      params,
+      params: queryParams,
     });
+
     return response.data;
   } catch (error) {
     console.error("장바구니 재료 추가 API 오류:", error);
