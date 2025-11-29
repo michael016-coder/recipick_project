@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -10,125 +10,105 @@ import {
 import { Checkbox } from "react-native-paper";
 
 import FullScreenSearchModal from "@/components/modals/searchModalnSelectMenu";
+import useCartStore from '@/src/stores/cartStore';
+import useFridgeStore from '@/src/stores/fridgeStore';
 
 // 1. 리스트에 들어갈 더미 데이터
-const DATA = [
-  {
-    id: "1",
-    name: "사과",
-    quantity: 3,
-    storageDays: "3일 경과",
-  },
-  {
-    id: "2",
-    name: "계란",
-    quantity: 2,
-    storageDays: "7일 경과",
-  },
-  {
-    id: "3",
-    name: "딸기",
-    quantity: 4,
-    storageDays: "1일 경과",
-  },
-
-  {
-    id: "4",
-    name: "우유1",
-    quantity: 5,
-    storageDays: "1일 경과",
-  },
-  {
-    id: "5",
-    name: "우유2",
-    quantity: 1,
-    storageDays: "1일 경과",
-  },
-  {
-    id: "6",
-    name: "우유3",
-    quantity: 1,
-    storageDays: "1일 경과",
-  },
-  {
-    id: "7",
-    name: "우유4",
-    quantity: 1,
-    storageDays: "1일 경과",
-  },
-  {
-    id: "8",
-    name: "우유5",
-    quantity: 1,
-    storageDays: "1일 경과",
-  },
-  {
-    id: "9",
-    name: "우유6",
-    quantity: 1,
-    storageDays: "1일 경과",
-  },
-  {
-    id: "10",
-    name: "우유7",
-    quantity: 1,
-    storageDays: "1일 경과",
-  },
-  {
-    id: "11",
-    name: "우유8",
-    quantity: 1,
-    storageDays: "1일 경과",
-  },
-];
 
 // 2. 개별 아이템 컴포넌트 (Text 추가 및 스타일 적용)
-const MyIngItem = ({ item }) => {
-  const [checked, setChecked] = useState(false);
-
-  const toggleCheckbox = () => {
-    setChecked(!checked);
-  };
-
+const MyIngItem = ({
+  item, 
+  isChecked, 
+  onToggle, }) => {
+  
   return (
     <TouchableOpacity
       style={styles.itemContainer}
-      onPress={toggleCheckbox}
+      onPress={() => onToggle(item)}
       activeOpacity={0.7}
     >
       {/* 텍스트 정보들을 묶는 컨테이너 (왼쪽 정렬) */}
       <View style={styles.textWrapper}>
         {/* 1. 이름 (가장 크고 강조됨) */}
-        <Text style={styles.nameText}>{item.name}</Text>
+        <Text style={styles.nameText}>{item.ingredientName}</Text>
 
         {/* 2. 수량 (부연 설명) */}
-        <Text style={styles.detailText}>{item.quantity}개</Text>
+        <Text style={styles.detailText}>{item.count}개</Text>
 
         {/* 3. 보관일 (부연 설명 - 수량과 동일한 스타일) */}
-        <Text style={styles.detailText}>{item.storageDays}</Text>
+        <Text style={styles.detailText}>{item.storagePeriod}</Text>
       </View>
 
       {/* 체크박스 (오른쪽 끝) */}
       <Checkbox
-        status={checked ? "checked" : "unchecked"}
-        onPress={toggleCheckbox}
+        status={isChecked ? "checked" : "unchecked"}
+        onPress={() => onToggle(item)}
       />
     </TouchableOpacity>
   );
 };
 
 export default function SelectFridgeIngScreen() {
+
+  const ingredients = useFridgeStore((state) => state.ingredients);
+  const refreshIngredients = useFridgeStore((state) => state.refreshIngredients);
+
+  const addItemToCart = useCartStore((state) => state.addItemToCart);
+  const removeItemFromCart = useCartStore((state) => state.removeItemFromCart);
+  const cartItems = useCartStore((state) => state.cartItems);
+  const refreshCartItems = useCartStore((state) => state.refreshCartItems);
+
+
+  useEffect(() => {
+      refreshIngredients();
+      refreshCartItems();
+
+  }, []);
+  
+
   const [isModalVisible, setModalVisible] = useState(false);
 
-  // 3. 렌더 함수 정의
-  const renderItem = ({ item }) => <MyIngItem item={item} />;
+
+  
+
+  // 토글 핸들러 (useCallback으로 함수 재생성 방지)
+  const handleToggle = useCallback((item) => {
+    // 현재 시점의 cartItems에서 찾기
+    const targetCartItem = cartItems.find(
+      (cart) => cart.ingredientId === item.ingredientId
+    );
+
+    if (targetCartItem) {
+      // 이미 있으면 삭제 (basketIngredientId 사용)
+      removeItemFromCart(targetCartItem.basketIngredientId);
+    } else {
+      // 없으면 추가 (ingredientId 사용)
+      addItemToCart(item.ingredientId);
+    }
+  }, [cartItems, addItemToCart, removeItemFromCart]); // cartItems가 바뀔 때만 함수 갱신
+
+  // 3. renderItem 함수
+  const renderItem = ({ item }) => {
+    
+    const isChecked = cartItems.some(
+      (cart) => cart.ingredientId === item.ingredientId
+    );
+
+    return (
+      <MyIngItem
+        item={item}
+        isChecked={isChecked} // true or false 전달
+        onToggle={handleToggle} // 핸들러 전달
+      />
+    );
+  };
 
   return (
     <View style={styles.container}>
       <FlatList
-        data={DATA}
+        data={ingredients}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.fridgeIngredientId}
         // 리스트 자체의 스타일
         style={styles.list}
         // 리스트 내용물이 화면 중앙에 정렬되도록 돕는 옵션 (데이터가 적을 때 유용)
@@ -223,3 +203,5 @@ const styles = StyleSheet.create({
     elevation: 20,
   },
 });
+
+

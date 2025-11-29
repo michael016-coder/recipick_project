@@ -1,6 +1,8 @@
-import React, { useEffect, useRef } from 'react';
-import { Animated, Dimensions, StyleSheet, Text, View } from 'react-native';
-import { Searchbar } from 'react-native-paper';
+import { searchRequest } from '@/src/api/search';
+import useCartStore from '@/src/stores/cartStore';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Checkbox, Searchbar } from 'react-native-paper';
 
 
 
@@ -8,37 +10,26 @@ import { Searchbar } from 'react-native-paper';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 
-const InnerSearchContent = () => {
-    
-    const [searchQuery, setSearchQuery] = React.useState('');
-    return (
-        <View style={styles.modalContent}>
-            <View style={styles.searchHeader}>
-                <Searchbar
-                    placeholder="재료 검색"
-                    onChangeText={setSearchQuery}
-                    value={searchQuery}
-                    // 1. 스타일 객체 적용
-                    style={styles.searchBar}
-                    // 2. 내부 텍스트 스타일 적용
-                    inputStyle={styles.searchInput}
-                    // 3. 플레이스홀더 색상 조정 (선택사항)
-                    placeholderTextColor="#999"
-                    // 4. 아이콘 색상 조정 (선택사항)
-                    iconColor="#666"
-                />
-            </View>
-            <View style={styles.modalBody}>
-                <Text>여기 리스트가 들어갑니다...</Text>
-            </View>
-        </View>
-    )
-};
-
 export default function FullScreenSearchModal({ isModalVisible }) {
-    // 애니메이션 값 (초기값: 화면 너비만큼 오른쪽으로 밀려남)
-    const slideAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current;
 
+    const addItemToCart = useCartStore((state) => state.addItemToCart);
+    const removeItemFromCart = useCartStore((state) => state.removeItemFromCart);
+    const cartItems = useCartStore((state) => state.cartItems);
+    const refreshCartItems = useCartStore((state) => state.refreshCartItems);
+    
+    
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // 검색 모드 활성화 여부 (false: 선택된 목록 보여줌, true: 검색 결과 보여줌)
+    const [isSearchActive, setIsSearchActive] = useState(false);
+
+    // 현재 리스트에 보여줄 데이터, 장바구니에 선택된 데이터를 보여줄 예정. 
+    const [SEARCH_RESULT, setSEARCH_RESULT] = useState([]);
+
+    const selectedCartItemList = useMemo(() => {
+        return cartItems.filter(item => item.inFridge === false);
+    }, [cartItems]);
+    
     useEffect(() => {
         if (isModalVisible) {
             // 보이기: 0 위치로 이동
@@ -55,9 +46,109 @@ export default function FullScreenSearchModal({ isModalVisible }) {
                 useNativeDriver: true,
             }).start();
         }
+        refreshCartItems();
     }, [isModalVisible]);
 
+    /**
+   * [검색 실행 핸들러]
+   * 검색어가 있으면 검색 결과 모드로 전환, 없으면 초기 선택 목록으로 복귀
+   */
+    const handleSearch = async () => {
+        console.log(`검색 실행: ${searchQuery}`);
 
+        // 검색어가 비어있으면 검색 모드 해제 및 결과 초기화
+        if (searchQuery.trim() === '') {
+            setIsSearchActive(false);
+            setSEARCH_RESULT([]); // 리스트 비우기
+            return;
+        }
+
+        try {
+            // API 호출
+            const response = await searchRequest(searchQuery);
+
+            // [핵심] 기존 결과를 버리고 새 검색 결과로 저장
+            setSEARCH_RESULT(response);
+
+            // 검색 모드 활성화 (UI를 검색 결과 탭으로 전환 등)
+            setIsSearchActive(true);
+
+        } catch (error) {
+            console.error("검색 실패:", error);
+            setSEARCH_RESULT([]); // 에러 발생 시 빈 리스트로 초기화
+        }
+    };
+
+    const handleCartItem = async (item) => {
+        removeItemFromCart(item.basketIngredientId);
+    };
+
+    const handleSearchedItem = async (item) => {
+        // 현재 시점의 cartItems에서 찾기
+        const targetCartItem = selectedCartItemList.find(
+            (cart) => cart.ingredientId === item.id
+        );
+
+        if (targetCartItem) {
+            // 이미 있으면 삭제 (basketIngredientId 사용)
+            removeItemFromCart(targetCartItem.basketIngredientId);
+        } else {
+            // 없으면 추가 (ingredientId 사용)
+            addItemToCart(item.id);
+        }
+    };
+
+
+    /**
+     * [리스트 아이템 렌더링]
+     * 요구사항: 이름은 왼쪽 끝, 체크박스는 오른쪽 끝 배치
+     */
+    const renderSearchItem = ({ item }: { item: any }) => {
+        
+        const isChecked = selectedCartItemList.some(
+            (cart) => cart.ingredientId === item.id
+        );
+
+        return (
+        <TouchableOpacity
+            style={styles.itemContainer}
+            onPress={() => handleSearchedItem(item)}
+            activeOpacity={0.7}
+        >
+            {/* 1. 이름 (왼쪽 정렬) */}
+            <View style={styles.textWrapper}>
+                <Text style={styles.nameText}>{item.name}</Text>
+            </View> 
+            <Checkbox
+                    status={isChecked ? "checked" : "unchecked"}
+                    onPress={() => handleSearchedItem(item)}
+                color="#3b82f6" // 파란색 포인트 컬러
+            />      
+        </TouchableOpacity>
+
+        );
+    };
+
+    const renderCartItem = ({ item }: { item: any }) => {
+
+        return (
+            <TouchableOpacity
+                style={styles.itemContainer}
+                onPress={() => handleCartItem(item)}
+                activeOpacity={0.7}
+            >
+                {/* 1. 이름 (왼쪽 정렬) */}
+                <View style={styles.textWrapper}>
+                    <Text style={styles.nameText}>{item.name}</Text>
+                </View>
+
+                {/* 2. 체크박스 (오른쪽 끝) */}
+            </TouchableOpacity>
+            );
+    };
+
+    // 애니메이션 값 (초기값: 화면 너비만큼 오른쪽으로 밀려남)
+    const slideAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current;
     return (
         <Animated.View
             style={[
@@ -67,7 +158,62 @@ export default function FullScreenSearchModal({ isModalVisible }) {
                 },
             ]}
         >
-            <InnerSearchContent />
+            <View style={styles.modalContent}>
+                {/* 1. 헤더 (검색창) */}
+                <View style={styles.searchHeader}>
+                    <Searchbar
+                        placeholder="재료 검색"
+                        onChangeText={(text) => {
+                            setSearchQuery(text);
+                            // 텍스트를 다 지우면 초기 목록으로 돌아가게 처리
+                            if (text === '') {
+                                setIsSearchActive(false);
+                            }
+                        }}
+                        value={searchQuery}
+                        onSubmitEditing={handleSearch} // 엔터 키
+                        onIconPress={handleSearch}     // 돋보기 아이콘 클릭
+                        style={styles.searchBar}
+                        inputStyle={styles.searchInput}
+                        placeholderTextColor="#999"
+                        iconColor="#666"
+                    />
+                </View>
+
+                {/* 2. 바디 (리스트) */}
+                <View style={styles.modalBody}>
+                    {/* 리스트 제목 (선택사항) */}
+                    <Text style={styles.listTitle}>
+                        {isSearchActive ? `'${searchQuery}' 검색 결과` : '현재 선택된 재료'}
+                    </Text>
+                    {isSearchActive ?(
+                        <FlatList
+                            data={SEARCH_RESULT}
+                            keyExtractor={(item) => String(item.id)}
+                            renderItem={renderSearchItem}
+                            contentContainerStyle={styles.listContent}
+                            keyboardShouldPersistTaps="handled"
+                            ListEmptyComponent={
+                                <Text style={styles.emptyText}>
+                                   {"검색 결과가 없습니다."}
+                                </Text>
+                            }
+                        />):(
+                        <FlatList
+                            data={cartItems}
+                            keyExtractor={(item) => String(item.ingredientId)}
+                            renderItem={renderCartItem}
+                            contentContainerStyle={styles.listContent}
+                            keyboardShouldPersistTaps="handled"
+                            ListEmptyComponent={
+                                <Text style={styles.emptyText}>
+                                    {"선택된 재료가 없습니다."}
+                                </Text>
+                            }
+                        />
+                        )}
+                </View>
+            </View>
         </Animated.View>
     );
 }
@@ -126,5 +272,52 @@ const styles = StyleSheet.create({
     modalBody: {
         flex: 1,
         padding: 20,
-    }
+    },
+    //list 스타일
+    listTitle: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#666',
+        marginHorizontal: 20,
+        marginTop: 16,
+        marginBottom: 8,
+    },
+    listContent: {
+        paddingHorizontal: 16,
+        paddingBottom: 20,
+    },
+    emptyText: {
+        textAlign: 'center',
+        marginTop: 50,
+        color: '#9ca3af',
+        fontSize: 15,
+    },
+
+    // [리스트 아이템 스타일]
+    itemContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between", // 텍스트 묶음과 체크박스를 양 끝으로 배치
+
+        backgroundColor: "#e9f5ff",
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        borderWidth: 1,
+        borderColor: "#ddd",
+        borderRadius: 12,
+        marginBottom: 10,
+
+       
+    },
+    textWrapper: {
+        flexDirection: "row", // 이름, 수량, 보관일을 가로로 배치
+        alignItems: "center", // 텍스트들의 세로 중앙 정렬 (Baseline을 맞추려면 'flex-end' 사용 가능)
+        flex: 1, // 체크박스를 제외한 나머지 공간 차지
+        justifyContent: "center", // 왼쪽 정렬
+    },
+    nameText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#1f2937',
+      },
 });
