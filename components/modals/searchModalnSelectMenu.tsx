@@ -200,7 +200,7 @@ export default function FullScreenSearchModal({ isModalVisible }) {
                             }
                         />):(
                         <FlatList
-                            data={cartItems}
+                                data={selectedCartItemList}
                             keyExtractor={(item) => String(item.ingredientId)}
                             renderItem={renderCartItem}
                             contentContainerStyle={styles.listContent}

@@ -1,35 +1,34 @@
+import useCartStore from '@/src/stores/cartStore';
 import Feather from '@expo/vector-icons/Feather';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useNavigation } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SwipeListView } from 'react-native-swipe-list-view';
-
 
 // 목업 데이터 (10개)
 
 export default function CartScreen() {
 
+    const addItemToCart = useCartStore((state) => state.addItemToCart);
+    const removeItemFromCart = useCartStore((state) => state.removeItemFromCart);
+    const cartItems = useCartStore((state) => state.cartItems);
+    const refreshCartItems = useCartStore((state) => state.refreshCartItems);
+    const clearCart = useCartStore((state) => state.clearCart);
+
     const navigation = useNavigation() as any;
 
 
-    const [MOCK_CART_ITEMS, setIngredients] = useState([
-        { id: '1', name: '사과', source: 'fridge' }, // 냉장고에서 온 재료
-        { id: '2', name: '당근', source: 'search' }, // 검색으로 추가한 재료
-        { id: '3', name: '양파', source: 'fridge' },
-        { id: '4', name: '닭가슴살', source: 'search' },
-        { id: '5', name: '계란', source: 'fridge' },
-        { id: '6', name: '치즈', source: 'search' },
-        { id: '7', name: '양배추', source: 'fridge' },
-        { id: '8', name: '마늘', source: 'search' },
-        { id: '9', name: '버터', source: 'fridge' },
-        { id: '10', name: '두부', source: 'search' },
-    ]);
-
+ 
+   useEffect(() => {
+       refreshCartItems();
+   }, []);
+   
 
     const handleClearCart = () => {
-        // 장바구니 초기화 로직
         console.log('장바구니 초기화');
+        clearCart();
+
     };
 
     const handleSearchRecipe = () => {
@@ -48,26 +47,28 @@ export default function CartScreen() {
 
     function deleteIng(rowMap, rowItemId) {
         closeItem(rowMap, rowItemId);
-        const newData = [...MOCK_CART_ITEMS];
-        const prevIndex = MOCK_CART_ITEMS.findIndex(item => item.id === rowItemId);
-        console.log(MOCK_CART_ITEMS[prevIndex]);
-        console.log(rowItemId);
-        console.log(rowMap[rowItemId]);
-        newData.splice(prevIndex, 1);
-        setIngredients(newData);
-    }
+        try {
+            console.log("삭제 요청 ID:", rowItemId);
+            // zustand store의 비동기 삭제 함수 실행
+            // 이 함수가 실행되면 서버 DB에서 삭제되고, 성공 시 목록이 새로고침 됩니다.
+            removeItemFromCart(rowItemId);
+        } catch (error) {
+            console.error("삭제 중 오류 발생:", error);
+            // 필요 시 Alert.alert("오류", "삭제에 실패했습니다.");
+        }
+    };
 
     return (
        
             <View style={styles.container}>
                 <View style={styles.SwipeListContainer}>
                  <SwipeListView 
-                    keyExtractor={(item) => item.id}
-                    data={MOCK_CART_ITEMS}
+                    keyExtractor={(item) => String(item.basketIngredientId)}
+                    data={cartItems}
                     renderItem={(data,rowMap) => (                 
                         <View style={styles.itemContainer}>
                             <Text style={styles.itemName}>{data.item.name}</Text>
-                            {data.item.source === 'fridge' ? (
+                            { data.item.inFridge ? (
                                 <MaterialCommunityIcons
                                     name="fridge-outline"
                                     size={24}
@@ -85,7 +86,7 @@ export default function CartScreen() {
                     renderHiddenItem={(data, rowMap) => (
                         <View style = {styles.hiddenItemContainer}>
                             <TouchableOpacity style = {styles.deleteButton}
-                                onPress={() => deleteIng(rowMap, data.item.id)}
+                                onPress={() => deleteIng(rowMap, data.item.basketIngredientId)}
                             >
                                 <Text style={styles.deleteText}>삭제</Text>
                             </TouchableOpacity>
